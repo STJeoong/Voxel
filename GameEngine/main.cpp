@@ -4,9 +4,10 @@
 
 int main()
 {
+	GameEngine engine;
 	try
 	{
-		GameEngine::run();
+		engine.run();
 	}
 	catch (const std::exception& e)
 	{
