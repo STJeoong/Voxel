@@ -1,6 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <tuple>
 class GameEngine
 {
 public:
@@ -11,8 +12,10 @@ private:
 	void createInstance();
 	void pickPhysicalDevice();
 	void createLogicalDevice();
-	VkQueueFamilyProperties getQueueFamilyProperties(VkQueueFlags flags);
+	std::pair<VkQueueFamilyProperties, int> getQueueFamilyProperties(VkQueueFlags flags);
 	bool isDeviceSuitable(VkPhysicalDevice device);
+	void setupDebugMessenger();
+	bool checkValidationLayerSupport();
 	void createSurface();
 	void createSwapChain();
 	void mainLoop();
@@ -22,9 +25,11 @@ private:
 	static const uint32_t HEIGHT = 600;
 	GLFWwindow* _window;
 	VkInstance _vkInstance;
+	VkDebugUtilsMessengerEXT _debugMessenger = {};
 	VkPhysicalDevice _physicalDevice;
 	VkDevice _device; // logical device
 	VkQueue _graphicsQueue;
+	VkQueue _presentQueue;
 	VkSurfaceKHR _surface;
 	VkSwapchainKHR _swapChain;
 	VkFormat _swapChainImageFormat;

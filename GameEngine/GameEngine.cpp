@@ -4,6 +4,33 @@
 #include <iostream>
 #include <vector>
 
+#pragma region debug message
+static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+	VkDebugUtilsMessageTypeFlagsEXT messageType,
+	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+	void* pUserData) {
+
+	if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+		std::cerr << "Validation layer: " << pCallbackData->pMessage << '\n';
+
+	return VK_FALSE;
+}
+static VkResult createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pCallback) {
+	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+	if (func != nullptr)
+		return func(instance, pCreateInfo, pAllocator, pCallback);
+	else
+		return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+static void destroyDebugUtilsMessengerEXT(VkInstance instance, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT callback) {
+	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+	if (func != nullptr)
+		func(instance, callback, pAllocator);
+}
+#pragma endregion
+
+
 #pragma region static public
 void GameEngine::run()
 {
@@ -28,6 +55,9 @@ void GameEngine::initWindow()
 void GameEngine::initVulkan()
 {
 	this->createInstance();
+#ifdef _DEBUG
+	this->setupDebugMessenger();
+#endif
 	this->pickPhysicalDevice();
 	this->createLogicalDevice();
 	this->createSurface();
@@ -35,6 +65,11 @@ void GameEngine::initVulkan()
 }
 void GameEngine::createInstance()
 {
+#ifdef _DEBUG
+	if (!this->checkValidationLayerSupport())
+		throw std::runtime_error("Couldn't find validation layer");
+#endif
+
 	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = "My Game Engine";
@@ -49,9 +84,27 @@ void GameEngine::createInstance()
 
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+#ifdef _DEBUG
+	std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+	extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+	createInfo.ppEnabledExtensionNames = extensions.data();
+
+	const char* layers[] = { "VK_LAYER_KHRONOS_validation" };
+	createInfo.enabledLayerCount = 1;
+	createInfo.ppEnabledLayerNames = layers;
+
+	VkDebugUtilsMessengerCreateInfoEXT instanceDebugMessenger = {};
+	instanceDebugMessenger.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	instanceDebugMessenger.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+	instanceDebugMessenger.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	instanceDebugMessenger.pfnUserCallback = debugCallback;
+	instanceDebugMessenger.pUserData = nullptr;
+	createInfo.pNext = &instanceDebugMessenger;
+#else
 	createInfo.enabledExtensionCount = glfwExtensionCount;
 	createInfo.ppEnabledExtensionNames = glfwExtensions;
-	createInfo.enabledLayerCount = 0;
+#endif
 
 	if (vkCreateInstance(&createInfo, nullptr, &_vkInstance) != VK_SUCCESS)
 		throw std::runtime_error("Failed to create Vulkan instance");
@@ -67,6 +120,7 @@ void GameEngine::pickPhysicalDevice()
 	vkEnumeratePhysicalDevices(_vkInstance, &deviceCount, devices.data());
 
 	// 조건에 맞는 Physical Device 선택 (가장 적합한 디바이스)
+	// TODO : 성능 좋은 GPU 선택하기 (rating)
 	for (const auto& device : devices)
 		if (this->isDeviceSuitable(device))
 		{
@@ -83,10 +137,10 @@ void GameEngine::createLogicalDevice()
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
 	// graphics queue 생성
-	VkQueueFamilyProperties queueFamily = this->getQueueFamilyProperties(VK_QUEUE_GRAPHICS_BIT);
+	auto [queueFamily, idx] = this->getQueueFamilyProperties(VK_QUEUE_GRAPHICS_BIT);
 	VkDeviceQueueCreateInfo	queueCreateInfo = {};
 	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	queueCreateInfo.queueFamilyIndex = 0; // 임의의 값 지정
+	queueCreateInfo.queueFamilyIndex = idx;
 	float queuePriority = 1.0f;
 	queueCreateInfo.pQueuePriorities = &queuePriority;
 
@@ -97,9 +151,9 @@ void GameEngine::createLogicalDevice()
 	if (vkCreateDevice(_physicalDevice, &createInfo, nullptr, &_device) != VK_SUCCESS)
 		throw std::runtime_error("Failed to create logical device");
 
-	vkGetDeviceQueue(_device, 0, 0, &_graphicsQueue);
+	vkGetDeviceQueue(_device, idx, 0, &_graphicsQueue);
 }
-VkQueueFamilyProperties GameEngine::getQueueFamilyProperties(VkQueueFlags flags)
+std::pair<VkQueueFamilyProperties, int> GameEngine::getQueueFamilyProperties(VkQueueFlags flags)
 {
 	uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(_physicalDevice, &queueFamilyCount, nullptr);
@@ -107,9 +161,13 @@ VkQueueFamilyProperties GameEngine::getQueueFamilyProperties(VkQueueFlags flags)
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(_physicalDevice, &queueFamilyCount, queueFamilies.data());
 
+	int idx = 0;
 	for (const auto& queueFamily : queueFamilies)
+	{
 		if ((queueFamily.queueFlags & flags) == flags)
-			return queueFamily;
+			return { queueFamily, idx };
+		++idx;
+	}
 
 	throw std::runtime_error("Failed to find a suitable queue family");
 }
@@ -120,6 +178,33 @@ bool GameEngine::isDeviceSuitable(VkPhysicalDevice device)
 	vkGetPhysicalDeviceProperties(device, &deviceProperties);
 	// 예: Vulkan 1.0 이상을 지원하는지 확인
 	return deviceProperties.apiVersion >= VK_API_VERSION_1_0;
+}
+void GameEngine::setupDebugMessenger()
+{
+	VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback = debugCallback;
+	createInfo.pUserData = nullptr;
+	if (createDebugUtilsMessengerEXT(_vkInstance, &createInfo, nullptr, &_debugMessenger) != VK_SUCCESS)
+		throw std::runtime_error("Could not create debug messenger");
+}
+bool GameEngine::checkValidationLayerSupport()
+{
+	uint32_t layerCount;
+	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+	std::vector<VkLayerProperties> layers(layerCount);
+	vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
+
+	bool found = std::find_if(layers.begin(), layers.end(), [&](const VkLayerProperties& props) {
+		return strcmp(props.layerName, "VK_LAYER_KHRONOS_validation") == 0;
+		}) != layers.end();
+
+		if (!found)
+			return false;
+		return true;
 }
 void GameEngine::createSurface()
 {
@@ -157,6 +242,9 @@ void GameEngine::mainLoop()
 }
 void GameEngine::cleanUp()
 {
+#ifdef _DEBUG
+	destroyDebugUtilsMessengerEXT(_vkInstance, nullptr, _debugMessenger);
+#endif
 	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
 	vkDestroyDevice(_device, nullptr);
 	vkDestroySurfaceKHR(_vkInstance, _surface, nullptr);
