@@ -1,0 +1,9 @@
+{
+  "program": "GameEngine",
+  "width": 1280,
+  "height": 800,
+  "fullScreen": false,
+  "vsync": true,
+  "screenDepth": 1000.0,
+  "screenNear": 0.3
+}
