@@ -1,21 +1,28 @@
-#pragma once
-#include <string>
+﻿#pragma once
 #include "S_EngineConfig.h"
+#define SDL_MAIN_HANDLED
+#include <SDL2/SDL.h>
+#include <vector>
 
-class Window;
-class Graphics;
+class Object;
+
 class GameEngine
 {
 public:
 	static void init();
 	static void run();
 	static void terminate();
-	static const S_EngineConfig& config() { return s_config; }
+	static const S_EngineConfig& config();
+	static Object* instantiate();
+	static void destroy(Object* obj);
+	static SDL_Window* window();
+	static SDL_Renderer* renderer();
 private:
+	static void processInput();
+	static void update();
+	static void loadData();
+	static void unloadData();
 
-	static S_EngineConfig s_config;
-	static Window* s_window;
-	static Graphics* s_graphics;
 
 public:
 	GameEngine() = delete;

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <string>
 #include <nlohmann/json.hpp>
 struct S_EngineConfig
@@ -7,7 +7,7 @@ struct S_EngineConfig
 	int width;
 	int height;
 	bool fullScreen;
-	bool vsync; // if we want Direct3D to render according to the users monitor refresh rate or to just go as fast as possible.
+	bool vsync;
 	float screenDepth;
 	float screenNear;
 };

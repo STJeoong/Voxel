@@ -9,50 +9,101 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="소스 파일\Render">
-      <UniqueIdentifier>{6839eccf-e93f-4d88-b205-7d54fbe7528d}</UniqueIdentifier>
+    <Filter Include="소스 파일\Utils">
+      <UniqueIdentifier>{393b4d2a-b788-40cc-8b39-e46c2680acd8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\WIndow">
-      <UniqueIdentifier>{c122e647-c882-4c11-98fc-438c51959136}</UniqueIdentifier>
+    <Filter Include="소스 파일\Renderer">
+      <UniqueIdentifier>{12f759dc-dfc4-4d5e-ad07-6e6a8a3e5a12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Math">
+      <UniqueIdentifier>{6ebafbc6-20fe-4fed-9156-8a70298816d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Object">
+      <UniqueIdentifier>{60bf6d57-7a90-416d-9006-f2bee9f7bac3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader">
+      <UniqueIdentifier>{43bbc82e-2018-41fd-ba0c-9c3073f09a51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Shader\GLSL">
+      <UniqueIdentifier>{ba7565ae-7402-4369-b27b-8fd9258dc5ec}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="GameEngine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Component.cpp">
+      <Filter>소스 파일\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>소스 파일\Render</Filter>
+    <ClCompile Include="Object.cpp">
+      <Filter>소스 파일\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>소스 파일\WIndow</Filter>
+    <ClCompile Include="SpriteRenderer.cpp">
+      <Filter>소스 파일\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>소스 파일\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec3.cpp">
+      <Filter>소스 파일\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Vec2.cpp">
+      <Filter>소스 파일\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>소스 파일\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Mat3.cpp">
+      <Filter>소스 파일\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Mat4.cpp">
+      <Filter>소스 파일\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameEngine.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>소스 파일</Filter>
-    </ClInclude>
     <ClInclude Include="S_EngineConfig.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics.h">
-      <Filter>소스 파일\Render</Filter>
+    <ClInclude Include="Component.h">
+      <Filter>소스 파일\Object</Filter>
     </ClInclude>
-    <ClInclude Include="Window.h">
-      <Filter>소스 파일\WIndow</Filter>
+    <ClInclude Include="Object.h">
+      <Filter>소스 파일\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteRenderer.h">
+      <Filter>소스 파일\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>소스 파일\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec3.h">
+      <Filter>소스 파일\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec2.h">
+      <Filter>소스 파일\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>소스 파일\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Mat3.h">
+      <Filter>소스 파일\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Mat4.h">
+      <Filter>소스 파일\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json">
       <Filter>소스 파일</Filter>
+    </None>
+    <None Include="Shader\Sprite.frag">
+      <Filter>소스 파일\Shader\GLSL</Filter>
+    </None>
+    <None Include="Shader\Sprite.vert">
+      <Filter>소스 파일\Shader\GLSL</Filter>
     </None>
   </ItemGroup>
 </Project>
