@@ -1,7 +1,7 @@
 #include "Shader.h"
 #include <fstream>
 #include <sstream>
-#include <fmt/core.h>
+#include <format>
 
 #pragma region public
 Shader::Shader(const std::string& vert, const std::string& frag)
@@ -19,20 +19,21 @@ Shader::Shader(const std::string& vert, const std::string& frag)
 	GLint status;
 	glGetProgramiv(_program, GL_LINK_STATUS, &status);
 	if (status == GL_TRUE)
-	{
-		glUseProgram(_program);
 		return;
-	}
 
 	char buf[512] = {};
 	glGetProgramInfoLog(_program, 511, nullptr, buf);
-	throw std::runtime_error(fmt::format("GLSL Link Status:\n{}", buf));
+	throw std::runtime_error(std::format("GLSL Link Status:\n{}", buf));
 }
 Shader::~Shader()
 {
 	glDeleteProgram(_program);
 	glDeleteShader(_vertexShader);
 	glDeleteShader(_fragShader);
+}
+void Shader::setActive()
+{
+	glUseProgram(_program);
 }
 #pragma endregion
 
@@ -42,7 +43,7 @@ void Shader::compile(const std::string& fileName, GLuint shader)
 {
 	std::ifstream ifstream(fileName);
 	if (!ifstream.is_open())
-		throw std::runtime_error(fmt::format("Shader file not found : {}", fileName));
+		throw std::runtime_error(std::format("Shader file not found : {}", fileName));
 
 	std::stringstream sstream;
 	sstream << ifstream.rdbuf();
@@ -60,6 +61,6 @@ void Shader::compile(const std::string& fileName, GLuint shader)
 
 	char buf[512] = {};
 	glGetShaderInfoLog(shader, 511, nullptr, buf);
-	throw std::runtime_error(fmt::format("GLSL Compile Failed : \n{}", buf));
+	throw std::runtime_error(std::format("GLSL Compile Failed : \n{}", buf));
 }
 #pragma endregion

@@ -12,19 +12,19 @@
     <Filter Include="소스 파일\Utils">
       <UniqueIdentifier>{393b4d2a-b788-40cc-8b39-e46c2680acd8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Renderer">
-      <UniqueIdentifier>{12f759dc-dfc4-4d5e-ad07-6e6a8a3e5a12}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Math">
       <UniqueIdentifier>{6ebafbc6-20fe-4fed-9156-8a70298816d5}</UniqueIdentifier>
     </Filter>
     <Filter Include="소스 파일\Object">
       <UniqueIdentifier>{60bf6d57-7a90-416d-9006-f2bee9f7bac3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Shader">
+    <Filter Include="소스 파일\Rendering">
+      <UniqueIdentifier>{3cd53999-02b8-4163-a0a1-ca0dac0a8d1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Rendering\Shader">
       <UniqueIdentifier>{43bbc82e-2018-41fd-ba0c-9c3073f09a51}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Shader\GLSL">
+    <Filter Include="소스 파일\Rendering\Shader\GLSL">
       <UniqueIdentifier>{ba7565ae-7402-4369-b27b-8fd9258dc5ec}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -38,12 +38,6 @@
     <ClCompile Include="Object.cpp">
       <Filter>소스 파일\Object</Filter>
     </ClCompile>
-    <ClCompile Include="SpriteRenderer.cpp">
-      <Filter>소스 파일\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>소스 파일\Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Vec3.cpp">
       <Filter>소스 파일\Math</Filter>
     </ClCompile>
@@ -51,13 +45,19 @@
       <Filter>소스 파일\Math</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>소스 파일\Shader</Filter>
+      <Filter>소스 파일\Rendering\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Mat3.cpp">
       <Filter>소스 파일\Math</Filter>
     </ClCompile>
     <ClCompile Include="Mat4.cpp">
       <Filter>소스 파일\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexArray.cpp">
+      <Filter>소스 파일\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -73,12 +73,6 @@
     <ClInclude Include="Object.h">
       <Filter>소스 파일\Object</Filter>
     </ClInclude>
-    <ClInclude Include="SpriteRenderer.h">
-      <Filter>소스 파일\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>소스 파일\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Vec3.h">
       <Filter>소스 파일\Math</Filter>
     </ClInclude>
@@ -86,7 +80,7 @@
       <Filter>소스 파일\Math</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>소스 파일\Shader</Filter>
+      <Filter>소스 파일\Rendering\Shader</Filter>
     </ClInclude>
     <ClInclude Include="Mat3.h">
       <Filter>소스 파일\Math</Filter>
@@ -94,16 +88,19 @@
     <ClInclude Include="Mat4.h">
       <Filter>소스 파일\Math</Filter>
     </ClInclude>
+    <ClInclude Include="VertexArray.h">
+      <Filter>소스 파일\Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json">
       <Filter>소스 파일</Filter>
     </None>
-    <None Include="Shader\Sprite.frag">
-      <Filter>소스 파일\Shader\GLSL</Filter>
+    <None Include="Shader\Sprite.fs">
+      <Filter>소스 파일\Rendering\Shader\GLSL</Filter>
     </None>
-    <None Include="Shader\Sprite.vert">
-      <Filter>소스 파일\Shader\GLSL</Filter>
+    <None Include="Shader\Sprite.vs">
+      <Filter>소스 파일\Rendering\Shader\GLSL</Filter>
     </None>
   </ItemGroup>
 </Project>

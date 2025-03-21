@@ -1,20 +1,19 @@
 ﻿#include "GameEngine.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <format>
 #include "Object.h"
-#include <SDL2/SDL_image.h>
-#include <gl/glew.h>
-#include <fmt/core.h>
 #include "Shader.h"
+#include "VertexArray.h"
 
 using json = nlohmann::json;
 
 S_EngineConfig s_config = {};
-SDL_Window* s_window = nullptr;
-SDL_GLContext s_context;
+GLFWwindow* s_window = nullptr;
 Shader* s_shader = nullptr;
-bool s_isRunning = true;
-Uint32 s_prevTicks = 0;
+VertexArray* s_vertexArr = nullptr;
 std::vector<Object*> s_gameObjects;
 
 #pragma region public static
@@ -24,54 +23,61 @@ void GameEngine::init()
 	json j = json::parse(fstream);
 	j.get_to(s_config);
 	
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-		throw std::runtime_error(fmt::format("Unable to init SDL : {}", SDL_GetError()));
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-
-	s_window = SDL_CreateWindow(s_config.program.c_str(), 100, 100, s_config.width, s_config.height, SDL_WINDOW_OPENGL);
+	s_window = glfwCreateWindow(s_config.width, s_config.height, s_config.program.c_str(), nullptr, nullptr);
 	if (s_window == nullptr)
-		throw std::runtime_error(fmt::format("Failed to create window : {}", SDL_GetError()));
-	s_context = SDL_GL_CreateContext(s_window);
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK)
-		throw std::runtime_error("Failed to init glew");
-	glGetError();
+		throw std::runtime_error("Failed to create GLFW window");
+	glfwMakeContextCurrent(s_window);
 
-	s_shader = new Shader("C:/Users/taejeong/Source/repos/GameEngine/GameEngine/Shader/Sprite.vert", "C:/Users/taejeong/source/repos/GameEngine/GameEngine/Shader/Sprite.frag");
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		throw std::runtime_error("Failed to initialize GLAD");
+	glViewport(0, 0, s_config.width, s_config.height);
+
+	// set callback
+	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); });
+
+	s_shader = new Shader("C:/Users/taejeong/source/repos/GameEngine/GameEngine/Shader/Sprite.vs",
+		"C:/Users/taejeong/source/repos/GameEngine/GameEngine/Shader/Sprite.fs");
+	float vertices[] = {
+	-0.5f, -0.5f, 0.0f,
+	 0.5f, -0.5f, 0.0f,
+	 0.0f,  0.5f, 0.0f
+	};
+	unsigned int idxs[] = { 0,1,2 };
+	s_vertexArr = new VertexArray(vertices, 3, idxs, 3);
+
 	GameEngine::loadData();
-	s_prevTicks = SDL_GetTicks();
 }
 void GameEngine::run()
 {
-	while (s_isRunning)
+	while (!glfwWindowShouldClose(s_window))
 	{
-		GameEngine::processInput();
-		glClearColor(0.86f, 0.86f, 0.86f, 1.0f);
+		// input
+		if (glfwGetKey(s_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(s_window, true);
+
+		// rendering commands here
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		//SDL_SetRenderDrawColor(s_renderer, 0, 0, 255, 255); // 붓 색깔 고르는 함수인듯
-		//SDL_RenderClear(s_renderer); // 그리는 함수인듯? ( 아직 화면에 그려지지 않고 버퍼에 쓰는 작업 )
-		GameEngine::update();
-		SDL_GL_SwapWindow(s_window); // 전면 버퍼와 후면 버퍼 교환
-		//SDL_RenderPresent(s_renderer); // 전면 버퍼와 후면 버퍼를 교환 ( 실제 화면에 그려지는 작업 )
+		s_shader->setActive();
+		s_vertexArr->setActive();
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+		// check and call events and swap the buffers
+		glfwSwapBuffers(s_window);
+		glfwPollEvents();
 	}
 }
 void GameEngine::terminate()
 {	
 	GameEngine::unloadData();
+	glfwTerminate();
 	delete s_shader;
-	SDL_GL_DeleteContext(s_context);
-	SDL_DestroyWindow(s_window);
-	SDL_Quit();
 }
 const S_EngineConfig& GameEngine::config() { return s_config; }
 Object* GameEngine::instantiate()
@@ -88,40 +94,17 @@ void GameEngine::destroy(Object* obj)
 	s_gameObjects.erase(it);
 	delete obj;
 }
-SDL_Window* GameEngine::window() { return s_window; }
-//SDL_Renderer* GameEngine::renderer() { return s_renderer; }
 #pragma endregion
 
 #pragma region private static
 void GameEngine::processInput()
 {
-	SDL_Event evt = {};
-	while (SDL_PollEvent(&evt))
-	{
-		switch (evt.type)
-		{
-		case SDL_QUIT: s_isRunning = false; break;
-		default: break;
-		}
-	}
-
-	const Uint8* state = SDL_GetKeyboardState(NULL);
-	if (state[SDL_SCANCODE_ESCAPE])
-		s_isRunning = false;
 }
 void GameEngine::update()
 {
-	while (!SDL_TICKS_PASSED(SDL_GetTicks(), s_prevTicks + 16))
-		;
-	Uint32 curTicks = SDL_GetTicks();
-	float dt = (curTicks - s_prevTicks) / 1000.0f;
-
-	if (dt > 0.05f)
-		dt = 0.05f;
 	for (Object* obj : s_gameObjects)
 		if (obj->active())
-			obj->update(dt);
-	s_prevTicks = curTicks;
+			obj->update(0.05f);
 }
 void GameEngine::loadData()
 {

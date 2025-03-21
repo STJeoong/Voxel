@@ -116,8 +116,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>./;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,14 +144,14 @@
   <ItemGroup>
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="GameEngine.cpp" />
+    <ClCompile Include="glad.c" />
     <ClCompile Include="Mat3.cpp" />
     <ClCompile Include="Mat4.cpp" />
     <ClCompile Include="Object.cpp" />
-    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="Vec2.cpp" />
     <ClCompile Include="Vec3.cpp" />
+    <ClCompile Include="VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Component.h" />
@@ -159,17 +159,16 @@
     <ClInclude Include="Mat3.h" />
     <ClInclude Include="Mat4.h" />
     <ClInclude Include="Object.h" />
-    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="S_EngineConfig.h" />
     <ClInclude Include="Vec2.h" />
     <ClInclude Include="Vec3.h" />
+    <ClInclude Include="VertexArray.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json" />
-    <None Include="Shader\Sprite.frag" />
-    <None Include="Shader\Sprite.vert" />
+    <None Include="Shader\Sprite.fs" />
+    <None Include="Shader\Sprite.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

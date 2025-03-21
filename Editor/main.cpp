@@ -1,6 +1,5 @@
 #include <GameEngine.h>
 #include <iostream>
-#include <fmt/core.h>
 
 int main(int argc, char** argv)
 {
