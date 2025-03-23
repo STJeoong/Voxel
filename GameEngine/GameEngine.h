@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "S_EngineConfig.h"
-#define SDL_MAIN_HANDLED
 #include <vector>
 
 class Object;

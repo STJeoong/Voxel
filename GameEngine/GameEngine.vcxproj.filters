@@ -59,6 +59,9 @@
     <ClCompile Include="glad.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>소스 파일\Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameEngine.h">
@@ -89,6 +92,9 @@
       <Filter>소스 파일\Math</Filter>
     </ClInclude>
     <ClInclude Include="VertexArray.h">
+      <Filter>소스 파일\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
       <Filter>소스 파일\Rendering</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,6 +7,7 @@
 #include "Object.h"
 #include "Shader.h"
 #include "VertexArray.h"
+#include "Texture.h"
 
 using json = nlohmann::json;
 
@@ -15,6 +16,36 @@ GLFWwindow* s_window = nullptr;
 Shader* s_shader = nullptr;
 VertexArray* s_vertexArr = nullptr;
 std::vector<Object*> s_gameObjects;
+
+static void applyVertices()
+{
+	float vertices[] = {
+		// positions          // colors           // texture coords
+		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+	};
+	unsigned int indices[] = {  // note that we start from 0!
+	0, 1, 3,   // first triangle
+	1, 2, 3    // second triangle
+	};
+	/*unsigned int indices[] = {
+		1,2,3,
+		0,1,3
+	};*/
+	//float vertices[] = {
+	// 0.5f,  0.5f, 0.0f,  // top right
+	// 0.5f, -0.5f, 0.0f,  // bottom right
+	//-0.5f, -0.5f, 0.0f,  // bottom left
+	//-0.5f,  0.5f, 0.0f   // top left 
+	//};
+	//unsigned int indices[] = {  // note that we start from 0!
+	//	0, 1, 3,   // first triangle
+	//	1, 2, 3    // second triangle
+	//};
+	s_vertexArr = new VertexArray(vertices, 4, indices, 6);
+}
 
 #pragma region public static
 void GameEngine::init()
@@ -40,32 +71,42 @@ void GameEngine::init()
 	// set callback
 	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); });
 
-	s_shader = new Shader("C:/Users/taejeong/source/repos/GameEngine/GameEngine/Shader/Sprite.vs",
-		"C:/Users/taejeong/source/repos/GameEngine/GameEngine/Shader/Sprite.fs");
-	float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
-	};
-	unsigned int idxs[] = { 0,1,2 };
-	s_vertexArr = new VertexArray(vertices, 3, idxs, 3);
+	s_shader = new Shader("../GameEngine/Shader/Sprite.vs",	"../GameEngine/Shader/Sprite.fs");
+	Texture::flipVerticallyOnLoad(true);
+	applyVertices();
 
 	GameEngine::loadData();
 }
 void GameEngine::run()
 {
+	bool toggle = false;
+	Texture* texture1 = new Texture("./Resources/container.jpg", GL_RGB, GL_RGB);
+	Texture* texture2 = new Texture("./Resources/awesomeface.png", GL_RGB, GL_RGBA);
+	s_shader->setActive();
+	s_vertexArr->setActive();
+	texture1->setTexUnit(0);
+	texture2->setTexUnit(1);
+	s_shader->setInt("texture1", 0);
+	s_shader->setInt("texture2", 1);
+	
 	while (!glfwWindowShouldClose(s_window))
 	{
 		// input
 		if (glfwGetKey(s_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 			glfwSetWindowShouldClose(s_window, true);
+		if (glfwGetKey(s_window, GLFW_KEY_0) == GLFW_PRESS)
+		{
+			toggle = !toggle;
+			if (toggle)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
+			else
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
 
 		// rendering commands here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-		s_shader->setActive();
-		s_vertexArr->setActive();
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
 
 		// check and call events and swap the buffers

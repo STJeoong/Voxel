@@ -11,29 +11,49 @@ Shader::Shader(const std::string& vert, const std::string& frag)
 	this->compile(vert, _vertexShader);
 	this->compile(frag, _fragShader);
 
-	_program = glCreateProgram();
-	glAttachShader(_program, _vertexShader);
-	glAttachShader(_program, _fragShader);
-	glLinkProgram(_program);
+	_id = glCreateProgram();
+	glAttachShader(_id, _vertexShader);
+	glAttachShader(_id, _fragShader);
+	glLinkProgram(_id);
 
 	GLint status;
-	glGetProgramiv(_program, GL_LINK_STATUS, &status);
+	glGetProgramiv(_id, GL_LINK_STATUS, &status);
 	if (status == GL_TRUE)
+	{
+		glDeleteShader(_vertexShader);
+		glDeleteShader(_fragShader);
 		return;
+	}
 
 	char buf[512] = {};
-	glGetProgramInfoLog(_program, 511, nullptr, buf);
+	glGetProgramInfoLog(_id, 511, nullptr, buf);
 	throw std::runtime_error(std::format("GLSL Link Status:\n{}", buf));
 }
 Shader::~Shader()
 {
-	glDeleteProgram(_program);
-	glDeleteShader(_vertexShader);
-	glDeleteShader(_fragShader);
+	glDeleteProgram(_id);
 }
 void Shader::setActive()
 {
-	glUseProgram(_program);
+	glUseProgram(_id);
+}
+void Shader::setFloat(const std::string& name, float value)
+{
+	this->setActive();
+	int location = glGetUniformLocation(_id, name.c_str());
+	glUniform1f(location, value);
+}
+void Shader::setBool(const std::string& name, bool value)
+{
+	this->setActive();
+	int location = glGetUniformLocation(_id, name.c_str());
+	glUniform1i(location, static_cast<int>(value));
+}
+void Shader::setInt(const std::string& name, int value)
+{
+	this->setActive();
+	int location = glGetUniformLocation(_id, name.c_str());
+	glUniform1i(location, value);
 }
 #pragma endregion
 
