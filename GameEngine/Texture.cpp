@@ -7,15 +7,14 @@
 static bool s_flip = false;
 
 #pragma region public
-void Texture::flipVerticallyOnLoad(bool flag)
-{
-	if (s_flip == flag)
-		return;
-	s_flip = flag;
-	stbi_set_flip_vertically_on_load(s_flip);
-}
 Texture::Texture(const std::string& fileName, int internalFormat, int fileFormat)
 {
+	if (s_flip == false)
+	{
+		s_flip = true;
+		stbi_set_flip_vertically_on_load(s_flip);
+	}
+
 	glGenTextures(1, &_id);
 	glBindTexture(GL_TEXTURE_2D, _id);
 

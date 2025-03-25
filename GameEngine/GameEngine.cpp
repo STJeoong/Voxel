@@ -8,10 +8,12 @@
 #include "Shader.h"
 #include "VertexArray.h"
 #include "Texture.h"
+#include "Structs.h"
+#include "Enums.h"
 
 using json = nlohmann::json;
 
-S_EngineConfig s_config = {};
+EngineConfig s_config = {};
 GLFWwindow* s_window = nullptr;
 Shader* s_shader = nullptr;
 VertexArray* s_vertexArr = nullptr;
@@ -72,7 +74,6 @@ void GameEngine::init()
 	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); });
 
 	s_shader = new Shader("../GameEngine/Shader/Sprite.vs",	"../GameEngine/Shader/Sprite.fs");
-	Texture::flipVerticallyOnLoad(true);
 	applyVertices();
 
 	GameEngine::loadData();
@@ -88,7 +89,8 @@ void GameEngine::run()
 	texture2->setTexUnit(1);
 	s_shader->setInt("texture1", 0);
 	s_shader->setInt("texture2", 1);
-	
+	Transform transform;
+
 	while (!glfwWindowShouldClose(s_window))
 	{
 		// input
@@ -106,6 +108,9 @@ void GameEngine::run()
 		// rendering commands here
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		transform.rot *= Quat(Vec3::Z, glfwGetTime() * 0.001f);
+		transform.update();
+		s_shader->setMat4f("transform", transform.raw());
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
 
@@ -120,7 +125,7 @@ void GameEngine::terminate()
 	glfwTerminate();
 	delete s_shader;
 }
-const S_EngineConfig& GameEngine::config() { return s_config; }
+const EngineConfig& GameEngine::config() { return s_config; }
 Object* GameEngine::instantiate()
 {
 	Object* obj = new Object();

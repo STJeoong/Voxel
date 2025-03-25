@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 #include <string>
 #include <nlohmann/json.hpp>
-struct S_EngineConfig
+struct EngineConfig
 {
 	std::string program;
 	int width;
@@ -12,4 +12,4 @@ struct S_EngineConfig
 	float screenNear;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(S_EngineConfig, program, width, height, fullScreen, vsync, screenDepth, screenNear)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EngineConfig, program, width, height, fullScreen, vsync, screenDepth, screenNear)

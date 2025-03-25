@@ -3,9 +3,6 @@
 class Texture
 {
 public:
-	static void flipVerticallyOnLoad(bool flag);
-
-public:
 	Texture(const std::string& fileName, int internalFormat, int fileFormat);
 	void setActive();
 	void setTexUnit(int unit);

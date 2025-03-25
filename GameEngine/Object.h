@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <vector>
+#include "Transform.h"
 
 class Component;
 class Object
@@ -14,10 +15,13 @@ public:
 	void update(float dt);
 	bool active() const { return _active; }
 	void active(bool flag);
+
+	Transform transform;
 private:
 
 	std::vector<Component*> _components;
 	bool _active = true;
+
 };
 
 template<typename T, typename ...Args>

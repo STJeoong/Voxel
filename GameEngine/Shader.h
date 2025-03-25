@@ -11,6 +11,7 @@ public:
 	void setFloat(const std::string& name, float value);
 	void setBool(const std::string& name, bool value);
 	void setInt(const std::string& name, int value);
+	void setMat4f(const std::string& name, const float* value);
 private:
 	void compile(const std::string& fileName, GLuint shader);
 

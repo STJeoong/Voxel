@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "S_EngineConfig.h"
 #include <vector>
 
+struct EngineConfig;
 class Object;
 
 class GameEngine
@@ -10,7 +10,7 @@ public:
 	static void init();
 	static void run();
 	static void terminate();
-	static const S_EngineConfig& config();
+	static const EngineConfig& config();
 	static Object* instantiate();
 	static void destroy(Object* obj);
 private:

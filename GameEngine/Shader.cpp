@@ -55,6 +55,12 @@ void Shader::setInt(const std::string& name, int value)
 	int location = glGetUniformLocation(_id, name.c_str());
 	glUniform1i(location, value);
 }
+void Shader::setMat4f(const std::string& name, const float* value)
+{
+	this->setActive();
+	int location = glGetUniformLocation(_id, name.c_str());
+	glUniformMatrix4fv(location, 1, GL_TRUE, value);
+}
 #pragma endregion
 
 
