@@ -40,6 +40,7 @@ void GameEngine::init()
 	glViewport(0, 0, s_config.width, s_config.height);
 
 	// set callback
+	glfwSetInputMode(s_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int width, int height)
 		{ glViewport(0, 0, width, height); s_config.width = width; s_config.height = height; });
 
@@ -59,6 +60,8 @@ void GameEngine::init()
 }
 void GameEngine::run()
 {
+	double last = glfwGetTime();
+	double current = glfwGetTime();
 	while (!glfwWindowShouldClose(s_window))
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -67,9 +70,11 @@ void GameEngine::run()
 			glfwSetWindowShouldClose(s_window, true);
 		for (Object* obj : s_gameObjects)
 			if (obj->active())
-				obj->update(0.05f);
+				obj->update(current - last);
 		glfwSwapBuffers(s_window);
 		glfwPollEvents();
+		last = current;
+		current = glfwGetTime();
 	}
 }
 void GameEngine::terminate()
@@ -107,14 +112,14 @@ void GameEngine::loadData()
 {
 	Object* cam = GameEngine::instantiate();
 	cam->addComponent<Camera>();
-	//cam->addComponent<CameraController>();
+	cam->addComponent<CameraController>();
 
 	Object* cube = GameEngine::instantiate();
 	cube->transform.pos = { 0.0f, 0.0f, -200.0f };
-	cube->transform.rot *= Quat({ 0, 0.0f, PI / 8.0f });
+	//cube->transform.rot *= Quat({ 0.0f, 0.0f, PI / 8.0f });
 	cube->transform.scale *= 100.0f;
 	//cube->transform.rot *= Quat(Vec3::Y, PI / 4.0f);
-	cube->addComponent<CameraController>();
+	//cube->addComponent<CameraController>();
 	cube->mesh(Mesh::get("./Resources/Cube.gpmesh"));
 
 	/*Object* plane = GameEngine::instantiate();

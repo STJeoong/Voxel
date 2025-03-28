@@ -1,7 +1,7 @@
 {
-	"version":1,
-	"vertexformat":"PosNormTex",
-	"shader":"Mesh",
+	"version": 1,
+	"vertexformat": "PosNormTex",
+	"shader": "Mesh",
 	"textures": [
 		"./Resources/awesomeface.png",
 		"./Resources/container.jpg"

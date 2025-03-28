@@ -55,13 +55,6 @@ void Camera::update(float dt)
 			k.x, k.y, k.z, t.z,
 			0.0f, 0.0f, 0.0f, 1.0f
 		};
-		/*float m[4][4] =
-		{
-			i.x, j.x, k.x, 0.0f,
-			i.y, j.y, k.y, 0.0f,
-			i.z, j.z, k.z, 0.0f,
-			t.x, t.y, t.z, 1.0f
-		};*/
 		view = Mat4(m);
 	}
 
@@ -76,13 +69,6 @@ void Camera::update(float dt)
 			0.0f, 0.0f, _far / (_far - _near), (_far * _near) / (_near - _far),
 			0.0f, 0.0f, 1.0f, 0.0f
 		};
-		/*float m[4][4] =
-		{
-			xScale, 0.0f, 0.0f, 0.0f,
-			0.0f, yScale, 0.0f, 0.0f,
-			0.0f, 0.0f, _far / (_far - _near), 1.0f,
-			0.0f, 0.0f, (_far * _near) / (_near - _far), 0.0f
-		};*/
 		proj = Mat4(m);
 	}
 	_viewProj = proj * view;

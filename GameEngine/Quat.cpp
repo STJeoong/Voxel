@@ -29,6 +29,11 @@ Quat::Quat(const Vec3& euler)
 	_s = cr * cp * cy + sr * sp * sy;
 	_v = { sr * cp * cy - cr * sp * sy , cr * sp * cy + sr * cp * sy, cr * cp * sy - sr * sp * cy };
 }
+Quat& Quat::operator=(const Vec3& euler)
+{
+	*this = Quat(euler);
+	return *this;
+}
 Quat& Quat::operator=(const Quat& other)
 {
 	_s = other._s;

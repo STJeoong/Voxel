@@ -10,6 +10,7 @@ public:
 	Quat() = default;
 	Quat(const Vec3& axis, float radian);
 	Quat(const Vec3& euler);
+	Quat& operator=(const Vec3& euler);
 	Quat& operator=(const Quat& other);
 	Quat& operator*=(const Quat& other);
 	Quat operator*(const Quat& other) const;
