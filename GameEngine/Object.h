@@ -2,10 +2,14 @@
 #include <vector>
 #include "Transform.h"
 
+class Mesh;
+class MeshRenderer;
 class Component;
 class Object
 {
 public:
+	Object();
+	~Object();
 	template<typename T, typename... Args>
 	T* addComponent(Args&&... args);
 	template<typename T>
@@ -15,14 +19,17 @@ public:
 	void update(float dt);
 	bool active() const { return _active; }
 	void active(bool flag);
+	void mesh(Mesh* value);
 
 	Transform transform;
 private:
 
 	std::vector<Component*> _components;
 	bool _active = true;
-
+	MeshRenderer* _renderer = nullptr;
 };
+
+
 
 template<typename T, typename ...Args>
 inline T* Object::addComponent(Args && ...args)

@@ -11,15 +11,28 @@ Quat Quat::slerp(const Quat& q1, const Quat& q2, float f)
 
 
 #pragma region public
-Quat::Quat(const Vec3& axis, float radian) : s(_s), v(_v)
+Quat::Quat(const Vec3& axis, float radian)
 {
 	_s = cos(radian / 2.0f);
 	_v = axis * sin(radian / 2.0f);
 }
+// yaw(y), pitch(x), roll(z) : 정면이 z축이고 위쪽이 y축 오른손 좌표
+Quat::Quat(const Vec3& euler)
+{
+	float cr = cos(euler.x * 0.5f);
+	float sr = sin(euler.x * 0.5f);
+	float cp = cos(euler.y * 0.5f);
+	float sp = sin(euler.y * 0.5f);
+	float cy = cos(euler.z * 0.5f);
+	float sy = sin(euler.z * 0.5f);
+
+	_s = cr * cp * cy + sr * sp * sy;
+	_v = { sr * cp * cy - cr * sp * sy , cr * sp * cy + sr * cp * sy, cr * cp * sy - sr * sp * cy };
+}
 Quat& Quat::operator=(const Quat& other)
 {
-	_s = other.s;
-	_v = other.v;
+	_s = other._s;
+	_v = other._v;
 	return *this;
 }
 Quat& Quat::operator*=(const Quat& other)

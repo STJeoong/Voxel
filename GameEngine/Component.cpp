@@ -6,7 +6,7 @@ void Component::enabled(bool flag)
 	if (_enabled == flag)
 		return;
 	_enabled = flag;
-	if (!_obj->active())
+	if (!_obj.active())
 		return;
 	if (_enabled)
 		this->onEnable();

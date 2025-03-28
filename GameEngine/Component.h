@@ -5,7 +5,7 @@ class Component
 {
 	friend class Object;
 public:
-	Component(Object* obj) : _obj(obj) {}
+	Component(Object* obj) : _obj(*obj) {}
 	virtual ~Component() = default;
 	bool enabled() const { return _enabled; }
 	void enabled(bool flag);
@@ -14,8 +14,7 @@ protected:
 	virtual void onEnable() {}
 	virtual void onDisable() {}
 
-
-	Object* const _obj = nullptr;
+	Object& _obj;
 private:
 	bool _enabled = true;
 };

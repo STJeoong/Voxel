@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <format>
+#include <glad/glad.h>
 
 #pragma region public
 Shader::Shader(const std::string& vert, const std::string& frag)

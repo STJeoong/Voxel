@@ -18,14 +18,17 @@
     <Filter Include="소스 파일\Object">
       <UniqueIdentifier>{60bf6d57-7a90-416d-9006-f2bee9f7bac3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Rendering">
+    <Filter Include="소스 파일\Graphics">
       <UniqueIdentifier>{3cd53999-02b8-4163-a0a1-ca0dac0a8d1d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Rendering\Shader">
+    <Filter Include="소스 파일\Graphics\Shader">
       <UniqueIdentifier>{43bbc82e-2018-41fd-ba0c-9c3073f09a51}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Rendering\Shader\GLSL">
+    <Filter Include="소스 파일\Graphics\Shader\GLSL">
       <UniqueIdentifier>{ba7565ae-7402-4369-b27b-8fd9258dc5ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Graphics\Renderer">
+      <UniqueIdentifier>{d2d6b045-d2bf-4015-b8e9-e701f93d9ca2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,19 +45,19 @@
       <Filter>소스 파일\Math</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>소스 파일\Rendering\Shader</Filter>
+      <Filter>소스 파일\Graphics\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Mat4.cpp">
       <Filter>소스 파일\Math</Filter>
     </ClCompile>
     <ClCompile Include="VertexArray.cpp">
-      <Filter>소스 파일\Rendering</Filter>
+      <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="glad.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>소스 파일\Rendering</Filter>
+      <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Vec4.cpp">
       <Filter>소스 파일\Math</Filter>
@@ -64,6 +67,24 @@
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>소스 파일\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>소스 파일\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshRenderer.cpp">
+      <Filter>소스 파일\Graphics\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraController.cpp">
+      <Filter>소스 파일\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -80,16 +101,16 @@
       <Filter>소스 파일\Math</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>소스 파일\Rendering\Shader</Filter>
+      <Filter>소스 파일\Graphics\Shader</Filter>
     </ClInclude>
     <ClInclude Include="Mat4.h">
       <Filter>소스 파일\Math</Filter>
     </ClInclude>
     <ClInclude Include="VertexArray.h">
-      <Filter>소스 파일\Rendering</Filter>
+      <Filter>소스 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>소스 파일\Rendering</Filter>
+      <Filter>소스 파일\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Vec4.h">
       <Filter>소스 파일\Math</Filter>
@@ -106,16 +127,31 @@
     <ClInclude Include="Transform.h">
       <Filter>소스 파일\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>소스 파일\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshRenderer.h">
+      <Filter>소스 파일\Graphics\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>소스 파일\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraController.h">
+      <Filter>소스 파일\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json">
       <Filter>소스 파일</Filter>
     </None>
-    <None Include="Shader\Sprite.fs">
-      <Filter>소스 파일\Rendering\Shader\GLSL</Filter>
+    <None Include="Shader\Mesh.fs">
+      <Filter>소스 파일\Graphics\Shader\GLSL</Filter>
     </None>
-    <None Include="Shader\Sprite.vs">
-      <Filter>소스 파일\Rendering\Shader\GLSL</Filter>
+    <None Include="Shader\Mesh.vs">
+      <Filter>소스 파일\Graphics\Shader\GLSL</Filter>
     </None>
   </ItemGroup>
 </Project>

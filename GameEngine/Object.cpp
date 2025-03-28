@@ -1,8 +1,19 @@
 ﻿#include "Object.h"
 #include "Component.h"
+#include "MeshRenderer.h"
 
 
 #pragma region public
+Object::Object()
+{
+	_renderer = new MeshRenderer(this);
+}
+Object::~Object()
+{
+	for (Component* comp : _components)
+		delete comp;
+	delete _renderer;
+}
 void Object::removeComponent(Component* component)
 {
 	auto it = std::find(_components.begin(), _components.end(), component);
@@ -13,9 +24,11 @@ void Object::removeComponent(Component* component)
 }
 void Object::update(float dt)
 {
+	transform.update();
 	for (Component* comp : _components)
 		if (comp->enabled())
 			comp->update(dt);
+	_renderer->draw();
 }
 void Object::active(bool flag)
 {
@@ -32,7 +45,13 @@ void Object::active(bool flag)
 			comp->onDisable();
 	}
 }
+void Object::mesh(Mesh* value)
+{
+	_renderer->mesh(value);
+}
 #pragma endregion
+
+
 
 #pragma region private
 #pragma endregion

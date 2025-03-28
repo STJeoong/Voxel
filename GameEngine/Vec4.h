@@ -13,6 +13,7 @@ public:
 	Vec4(const Vec3& vec3, float w = 1.0f);
 
 	float len() const;
+	float squaredLen() const;
 	void normalize();
 	Vec4 normalized() const;
 	Vec4 operator*(float val) const;

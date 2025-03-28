@@ -19,6 +19,7 @@ public:
 	Vec3(float x, float y, float z);
 	Vec3(float v[3]);
 	float len() const;
+	float squaredLen() const;
 	void normalize();
 	Vec3 normalized() const;
 	Mat4 asScale() const;

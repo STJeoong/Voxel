@@ -5,16 +5,19 @@
 class Transform
 {
 public:
-	Transform() : forward(_forward) {}
 	void update();
 	const float* raw() const { return _mat.raw(); }
+	const Vec3& forward() const { return _forward; }
+	const Vec3& right() const { return _right; }
+	const Vec3& up() const { return _up; }
 
 	Vec3 pos;
 	Quat rot;
 	Vec3 scale = { 1.0f, 1.0f, 1.0f };
-	const Vec3& forward;
 private:
 
-	Vec3 _forward;
+	Vec3 _forward = Vec3::Z;
+	Vec3 _right = Vec3::X;
+	Vec3 _up = Vec3::Y;
 	Mat4 _mat;
 };

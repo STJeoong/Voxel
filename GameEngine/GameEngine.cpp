@@ -1,53 +1,22 @@
 ﻿#include "GameEngine.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <format>
 #include "Object.h"
-#include "Shader.h"
-#include "VertexArray.h"
-#include "Texture.h"
 #include "Structs.h"
-#include "Enums.h"
+#include "Input.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <stb_image.h>
+#include "Shader.h"
 
 using json = nlohmann::json;
 
-EngineConfig s_config = {};
-GLFWwindow* s_window = nullptr;
-Shader* s_shader = nullptr;
-VertexArray* s_vertexArr = nullptr;
-std::vector<Object*> s_gameObjects;
+static EngineConfig s_config = {};
+static GLFWwindow* s_window = nullptr;
+static std::vector<Object*> s_gameObjects;
+static Shader* s_meshShader = nullptr;
 
-static void applyVertices()
-{
-	float vertices[] = {
-		// positions          // colors           // texture coords
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-	};
-	unsigned int indices[] = {  // note that we start from 0!
-	0, 1, 3,   // first triangle
-	1, 2, 3    // second triangle
-	};
-	/*unsigned int indices[] = {
-		1,2,3,
-		0,1,3
-	};*/
-	//float vertices[] = {
-	// 0.5f,  0.5f, 0.0f,  // top right
-	// 0.5f, -0.5f, 0.0f,  // bottom right
-	//-0.5f, -0.5f, 0.0f,  // bottom left
-	//-0.5f,  0.5f, 0.0f   // top left 
-	//};
-	//unsigned int indices[] = {  // note that we start from 0!
-	//	0, 1, 3,   // first triangle
-	//	1, 2, 3    // second triangle
-	//};
-	s_vertexArr = new VertexArray(vertices, 4, indices, 6);
-}
 
 #pragma region public static
 void GameEngine::init()
@@ -71,61 +40,47 @@ void GameEngine::init()
 	glViewport(0, 0, s_config.width, s_config.height);
 
 	// set callback
-	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); });
+	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int width, int height)
+		{ glViewport(0, 0, width, height); s_config.width = width; s_config.height = height; });
 
-	s_shader = new Shader("../GameEngine/Shader/Sprite.vs",	"../GameEngine/Shader/Sprite.fs");
-	applyVertices();
-
+	Input::init();
+	stbi_set_flip_vertically_on_load(true);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
+	glClearDepth(1.0f);
+	s_meshShader = new Shader("./Shader/Mesh.vs", "./Shader/Mesh.fs");
+	s_meshShader->setInt("texture0", 0);
+	s_meshShader->setInt("texture1", 1);
+	s_meshShader->setInt("texture2", 2);
+	s_meshShader->setInt("texture3", 3);
+	s_meshShader->setActive();
 	GameEngine::loadData();
 }
 void GameEngine::run()
 {
-	bool toggle = false;
-	Texture* texture1 = new Texture("./Resources/container.jpg", GL_RGB, GL_RGB);
-	Texture* texture2 = new Texture("./Resources/awesomeface.png", GL_RGB, GL_RGBA);
-	s_shader->setActive();
-	s_vertexArr->setActive();
-	texture1->setTexUnit(0);
-	texture2->setTexUnit(1);
-	s_shader->setInt("texture1", 0);
-	s_shader->setInt("texture2", 1);
-	Transform transform;
-
 	while (!glfwWindowShouldClose(s_window))
 	{
-		// input
-		if (glfwGetKey(s_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Input::update();
+		if (Input::getKey(GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(s_window, true);
-		if (glfwGetKey(s_window, GLFW_KEY_0) == GLFW_PRESS)
-		{
-			toggle = !toggle;
-			if (toggle)
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
-			else
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
-
-		// rendering commands here
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		transform.rot *= Quat(Vec3::Z, glfwGetTime() * 0.001f);
-		transform.update();
-		s_shader->setMat4f("transform", transform.raw());
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-
-		// check and call events and swap the buffers
+		for (Object* obj : s_gameObjects)
+			if (obj->active())
+				obj->update(0.05f);
 		glfwSwapBuffers(s_window);
 		glfwPollEvents();
 	}
 }
 void GameEngine::terminate()
-{	
+{
 	GameEngine::unloadData();
+	delete s_meshShader;
 	glfwTerminate();
-	delete s_shader;
 }
 const EngineConfig& GameEngine::config() { return s_config; }
+GLFWwindow* GameEngine::window() { return s_window; }
+Shader* GameEngine::shader() { return s_meshShader; }
 Object* GameEngine::instantiate()
 {
 	Object* obj = new Object();
@@ -142,18 +97,31 @@ void GameEngine::destroy(Object* obj)
 }
 #pragma endregion
 
+
+
 #pragma region private static
-void GameEngine::processInput()
-{
-}
-void GameEngine::update()
-{
-	for (Object* obj : s_gameObjects)
-		if (obj->active())
-			obj->update(0.05f);
-}
+#include "Camera.h"
+#include "CameraController.h"
+#include "Mesh.h"
 void GameEngine::loadData()
 {
+	Object* cam = GameEngine::instantiate();
+	cam->addComponent<Camera>();
+	//cam->addComponent<CameraController>();
+
+	Object* cube = GameEngine::instantiate();
+	cube->transform.pos = { 0.0f, 0.0f, -200.0f };
+	cube->transform.rot *= Quat({ 0, 0.0f, PI / 8.0f });
+	cube->transform.scale *= 100.0f;
+	//cube->transform.rot *= Quat(Vec3::Y, PI / 4.0f);
+	cube->addComponent<CameraController>();
+	cube->mesh(Mesh::get("./Resources/Cube.gpmesh"));
+
+	/*Object* plane = GameEngine::instantiate();
+	plane->transform.pos = { 0.0f,0.0f,-200.0f };
+	plane->transform.scale *= 100.0f;
+	plane->addComponent<CameraController>();
+	plane->mesh(Mesh::get("./Resources/Plane.gpmesh"));*/
 }
 void GameEngine::unloadData()
 {

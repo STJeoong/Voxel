@@ -3,13 +3,13 @@
 class Texture
 {
 public:
-	Texture(const std::string& fileName, int internalFormat, int fileFormat);
+	static Texture* get(const std::string& fileName);
+
+public:
 	void setActive();
 	void setTexUnit(int unit);
 private:
+	Texture(const std::string& fileName);
 
-	int _width = 0;
-	int _height = 0;
-	int _channel = 0;
 	unsigned int _id = 0;
 };

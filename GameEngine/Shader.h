@@ -1,5 +1,4 @@
 #pragma once
-#include <glad/glad.h>
 #include <string>
 
 class Shader
@@ -13,9 +12,9 @@ public:
 	void setInt(const std::string& name, int value);
 	void setMat4f(const std::string& name, const float* value);
 private:
-	void compile(const std::string& fileName, GLuint shader);
+	void compile(const std::string& fileName, unsigned int shader);
 
-	GLuint _vertexShader = 0;
-	GLuint _fragShader = 0;
-	GLuint _id = 0;
+	unsigned int _vertexShader = 0;
+	unsigned int _fragShader = 0;
+	unsigned int _id = 0;
 };

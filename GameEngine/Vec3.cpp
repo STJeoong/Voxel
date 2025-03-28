@@ -46,6 +46,10 @@ float Vec3::len() const
 {
 	return std::sqrt(x * x + y * y + z * z);
 }
+float Vec3::squaredLen() const
+{
+	return x * x + y * y + z * z;
+}
 void Vec3::normalize()
 {
 	float length = this->len();

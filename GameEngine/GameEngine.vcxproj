@@ -40,7 +40,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -114,13 +114,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>./thirdparty;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -142,10 +142,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Mat4.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Quat.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -156,10 +162,15 @@
     <ClCompile Include="VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="CameraController.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Enums.h" />
     <ClInclude Include="GameEngine.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="Mat4.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Quat.h" />
     <ClInclude Include="Shader.h" />
@@ -172,8 +183,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="config.json" />
-    <None Include="Shader\Sprite.fs" />
-    <None Include="Shader\Sprite.vs" />
+    <None Include="Shader\Mesh.fs" />
+    <None Include="Shader\Mesh.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
