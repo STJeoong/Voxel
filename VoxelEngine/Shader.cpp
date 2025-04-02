@@ -65,6 +65,7 @@ void Shader::setMat4f(const std::string& name, const float* value)
 #pragma endregion
 
 
+
 #pragma region private
 void Shader::compile(const std::string& fileName, GLuint shader)
 {

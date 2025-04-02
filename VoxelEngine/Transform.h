@@ -16,7 +16,7 @@ public:
 	Vec3 scale = { 1.0f, 1.0f, 1.0f };
 private:
 
-	Vec3 _forward = Vec3::Z;
+	Vec3 _forward = Vec3::Z * -1.0f;
 	Vec3 _right = Vec3::X;
 	Vec3 _up = Vec3::Y;
 	Mat4 _mat;

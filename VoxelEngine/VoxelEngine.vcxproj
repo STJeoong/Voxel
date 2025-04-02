@@ -24,6 +24,7 @@
     <ProjectGuid>{66b9f125-5aa3-4be2-b6ed-875e2e60ae1d}</ProjectGuid>
     <RootNamespace>GameEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>VoxelEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -172,6 +173,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="PerlinNoise.h" />
     <ClInclude Include="Quat.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Structs.h" />

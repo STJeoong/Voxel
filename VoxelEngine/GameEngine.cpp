@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 #include "Shader.h"
+#include <iostream>
 
 using json = nlohmann::json;
 
@@ -47,9 +48,10 @@ void GameEngine::init()
 	Input::init();
 	stbi_set_flip_vertically_on_load(true);
 	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	glClearColor(0.2f, 0.3f, 0.5f, 1.0f);
-	glClearDepth(1.0f);
+	glEnable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+
 	s_meshShader = new Shader("./Shader/Mesh.vs", "./Shader/Mesh.fs");
 	s_meshShader->setInt("texture0", 0);
 	s_meshShader->setInt("texture1", 1);
@@ -60,10 +62,17 @@ void GameEngine::init()
 }
 void GameEngine::run()
 {
-	double last = glfwGetTime();
+	double last = 0.0;
 	double current = glfwGetTime();
+	int i = 0;
 	while (!glfwWindowShouldClose(s_window))
 	{
+		++i;
+		if (i == 20)
+		{
+			i = 0;
+			std::cout << std::format("{} fps\n", 1 / (current - last));
+		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Input::update();
 		if (Input::getKey(GLFW_KEY_ESCAPE))
@@ -108,25 +117,30 @@ void GameEngine::destroy(Object* obj)
 #include "Camera.h"
 #include "CameraController.h"
 #include "Mesh.h"
+#include "PerlinNoise.h"
+
+int voxels[64][64][64] = {};
 void GameEngine::loadData()
 {
 	Object* cam = GameEngine::instantiate();
 	cam->addComponent<Camera>();
 	cam->addComponent<CameraController>();
 
-	Object* cube = GameEngine::instantiate();
-	cube->transform.pos = { 0.0f, 0.0f, -200.0f };
-	//cube->transform.rot *= Quat({ 0.0f, 0.0f, PI / 8.0f });
-	cube->transform.scale *= 100.0f;
-	//cube->transform.rot *= Quat(Vec3::Y, PI / 4.0f);
-	//cube->addComponent<CameraController>();
-	cube->mesh(Mesh::get("./Resources/Cube.gpmesh"));
 
-	/*Object* plane = GameEngine::instantiate();
-	plane->transform.pos = { 0.0f,0.0f,-200.0f };
-	plane->transform.scale *= 100.0f;
-	plane->addComponent<CameraController>();
-	plane->mesh(Mesh::get("./Resources/Plane.gpmesh"));*/
+	siv::PerlinNoise perlin(1234);
+	for (int i = 0; i < 32; ++i)
+		for (int j = 0; j < 32; ++j)
+		{
+			double noise = perlin.octave2D_01(i * 0.01, j * 0.01, 4);
+			int height = static_cast<int>(noise * 32);
+			for (int k = 0; k <= height; ++k)
+			{
+				voxels[i][k][j] = 1;
+				Object* cube = GameEngine::instantiate();
+				cube->transform.pos = { (float)i,(float)k,(float)j };
+				cube->mesh(Mesh::get("./Resources/Cube.gpmesh"));
+			}
+		}
 }
 void GameEngine::unloadData()
 {
