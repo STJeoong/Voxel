@@ -9,18 +9,16 @@ VertexArray::VertexArray(const float* verts, unsigned int vSize, const unsigned 
 
 	glGenBuffers(1, &_vBuf);
 	glBindBuffer(GL_ARRAY_BUFFER, _vBuf);
-	glBufferData(GL_ARRAY_BUFFER, vSize * 8 * sizeof(float), verts, GL_STATIC_DRAW); // 버퍼 복사
+	glBufferData(GL_ARRAY_BUFFER, vSize * 6 * sizeof(float), verts, GL_STATIC_DRAW); // 버퍼 복사
 
 	glGenBuffers(1, &_iBuf);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _iBuf);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, iSize * sizeof(unsigned int), idxs, GL_STATIC_DRAW); // 버퍼 복사
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, 0); // 만약 GL_TRUE로 하면 값을 정규화함. int, byte같은 것은 GL_TRUE로 해줘야됨.
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0); // 만약 GL_TRUE로 하면 값을 정규화함. int, byte같은 것은 GL_TRUE로 해줘야됨.
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, reinterpret_cast<void*>(sizeof(float) * 3));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, reinterpret_cast<void*>(sizeof(float) * 6));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, reinterpret_cast<void*>(sizeof(float) * 3));
 }
 VertexArray::~VertexArray()
 {

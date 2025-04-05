@@ -3,7 +3,6 @@
 
 struct GLFWwindow;
 struct EngineConfig;
-class Object;
 class Shader;
 
 class GameEngine
@@ -15,8 +14,6 @@ public:
 	static const EngineConfig& config();
 	static GLFWwindow* window();
 	static Shader* shader();
-	static Object* instantiate();
-	static void destroy(Object* obj);
 private:
 	static void loadData();
 	static void unloadData();

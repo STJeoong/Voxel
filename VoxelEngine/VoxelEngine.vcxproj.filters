@@ -35,12 +35,6 @@
     <ClCompile Include="GameEngine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>소스 파일\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>소스 파일\Object</Filter>
-    </ClCompile>
     <ClCompile Include="Vec3.cpp">
       <Filter>소스 파일\Math</Filter>
     </ClCompile>
@@ -83,19 +77,13 @@
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CameraController.cpp">
+    <ClCompile Include="Chunk.cpp">
       <Filter>소스 파일\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameEngine.h">
       <Filter>소스 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>소스 파일\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>소스 파일\Object</Filter>
     </ClInclude>
     <ClInclude Include="Vec3.h">
       <Filter>소스 파일\Math</Filter>
@@ -139,22 +127,22 @@
     <ClInclude Include="Mesh.h">
       <Filter>소스 파일\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="CameraController.h">
-      <Filter>소스 파일\Object</Filter>
-    </ClInclude>
     <ClInclude Include="PerlinNoise.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Chunk.h">
+      <Filter>소스 파일\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="config.json">
-      <Filter>소스 파일</Filter>
-    </None>
     <None Include="Shader\Mesh.fs">
       <Filter>소스 파일\Graphics\Shader\GLSL</Filter>
     </None>
     <None Include="Shader\Mesh.vs">
       <Filter>소스 파일\Graphics\Shader\GLSL</Filter>
+    </None>
+    <None Include="config.json">
+      <Filter>소스 파일</Filter>
     </None>
   </ItemGroup>
 </Project>

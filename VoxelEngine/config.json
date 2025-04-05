@@ -4,6 +4,10 @@
   "height": 768,
   "fullScreen": false,
   "vsync": true,
-  "screenDepth": 1000.0,
-  "screenNear": 0.3
+
+  "fov": 1.0471975,
+  "screenNear": 0.3,
+  "screenFar": 1000.0,
+  "mouseSensitivity": 0.001,
+  "camSpeed": 3
 }

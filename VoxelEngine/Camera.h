@@ -1,20 +1,19 @@
 #pragma once
 #include "Enums.h"
 #include "Mat4.h"
-#include "Component.h"
-class Camera : public Component
+#include "Transform.h"
+class Camera
 {
+	friend class GameEngine;
 public:
-	Camera(Object* obj) : Component(obj) {}
-	const Mat4& viewProj() const { return _viewProj; }
-	void fov(float value);
-	void near(float value);
-	void far(float value);
-protected:
-	virtual void update(float dt) override;
+	static void init();
+	static const Mat4& viewProj();
+	static void fov(float value);
+	static void near(float value);
+	static void far(float value);
+
+	static Transform transform;
 private:
-	float _fov = PI / 3.0f; // field of view
-	float _near = 0.3f;
-	float _far = 1000.0f;
-	Mat4 _viewProj = {};
+	static void update(float dt);
+	static void move();
 };

@@ -2,6 +2,7 @@
 class VertexArray
 {
 public:
+	// vSize : vertex attribute 묶음을 1개로 count, iSize : index 하나를 1개로 count
 	VertexArray(const float* verts, unsigned int vSize, const unsigned int* idxs, unsigned int iSize);
 	~VertexArray();
 	void setActive();

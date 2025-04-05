@@ -2,7 +2,6 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <format>
-#include "Object.h"
 #include "Structs.h"
 #include "Input.h"
 #include <glad/glad.h>
@@ -10,19 +9,20 @@
 #include <stb_image.h>
 #include "Shader.h"
 #include <iostream>
+#include "Camera.h"
+#include "Chunk.h"
 
 using json = nlohmann::json;
 
 static EngineConfig s_config = {};
 static GLFWwindow* s_window = nullptr;
-static std::vector<Object*> s_gameObjects;
 static Shader* s_meshShader = nullptr;
 
 
 #pragma region public static
 void GameEngine::init()
 {
-	std::ifstream fstream("C:/Users/taejeong/source/repos/GameEngine/GameEngine/config.json");
+	std::ifstream fstream("./config.json");
 	json j = json::parse(fstream);
 	j.get_to(s_config);
 	
@@ -46,11 +46,12 @@ void GameEngine::init()
 		{ glViewport(0, 0, width, height); s_config.width = width; s_config.height = height; });
 
 	Input::init();
+	Camera::init();
 	stbi_set_flip_vertically_on_load(true);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 
 	s_meshShader = new Shader("./Shader/Mesh.vs", "./Shader/Mesh.fs");
 	s_meshShader->setInt("texture0", 0);
@@ -62,9 +63,13 @@ void GameEngine::init()
 }
 void GameEngine::run()
 {
-	double last = 0.0;
-	double current = glfwGetTime();
+	float last = 0.0;
+	float current = static_cast<float>(glfwGetTime());
 	int i = 0;
+	Chunk* chunks[51][51] = {};
+	for (int i = -25; i < 26; ++i)
+		for (int j = -25; j < 26; ++j)
+			chunks[i + 25][j + 25] = new Chunk({ (float)CHUNK_SIZE * i, 0,(float)CHUNK_SIZE * j });
 	while (!glfwWindowShouldClose(s_window))
 	{
 		++i;
@@ -77,13 +82,19 @@ void GameEngine::run()
 		Input::update();
 		if (Input::getKey(GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(s_window, true);
-		for (Object* obj : s_gameObjects)
-			if (obj->active())
-				obj->update(current - last);
+		else if (Input::getKeyDown(GLFW_KEY_1))
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else if (Input::getKeyDown(GLFW_KEY_2))
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		Camera::update(current - last);
+		for (int i = 0; i < 51; ++i)
+			for (int j = 0; j < 51; ++j)
+				chunks[i][j]->draw();
 		glfwSwapBuffers(s_window);
 		glfwPollEvents();
 		last = current;
-		current = glfwGetTime();
+		current = static_cast<float>(glfwGetTime());
 	}
 }
 void GameEngine::terminate()
@@ -95,56 +106,15 @@ void GameEngine::terminate()
 const EngineConfig& GameEngine::config() { return s_config; }
 GLFWwindow* GameEngine::window() { return s_window; }
 Shader* GameEngine::shader() { return s_meshShader; }
-Object* GameEngine::instantiate()
-{
-	Object* obj = new Object();
-	s_gameObjects.push_back(obj);
-	return obj;
-}
-void GameEngine::destroy(Object* obj)
-{
-	auto it = std::find(s_gameObjects.begin(), s_gameObjects.end(), obj);
-	if (it == s_gameObjects.end())
-		return;
-	s_gameObjects.erase(it);
-	delete obj;
-}
 #pragma endregion
 
 
 
 #pragma region private static
-#include "Camera.h"
-#include "CameraController.h"
-#include "Mesh.h"
-#include "PerlinNoise.h"
-
-int voxels[64][64][64] = {};
 void GameEngine::loadData()
 {
-	Object* cam = GameEngine::instantiate();
-	cam->addComponent<Camera>();
-	cam->addComponent<CameraController>();
-
-
-	siv::PerlinNoise perlin(1234);
-	for (int i = 0; i < 32; ++i)
-		for (int j = 0; j < 32; ++j)
-		{
-			double noise = perlin.octave2D_01(i * 0.01, j * 0.01, 4);
-			int height = static_cast<int>(noise * 32);
-			for (int k = 0; k <= height; ++k)
-			{
-				voxels[i][k][j] = 1;
-				Object* cube = GameEngine::instantiate();
-				cube->transform.pos = { (float)i,(float)k,(float)j };
-				cube->mesh(Mesh::get("./Resources/Cube.gpmesh"));
-			}
-		}
 }
 void GameEngine::unloadData()
 {
-	for (Object* obj : s_gameObjects)
-		delete obj;
 }
 #pragma endregion

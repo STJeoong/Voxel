@@ -8,8 +8,13 @@ struct EngineConfig
 	int height;
 	bool fullScreen;
 	bool vsync;
-	float screenDepth;
+
+	// camera
+	float fov;
 	float screenNear;
+	float screenFar;
+	float mouseSensitivity;
+	float camSpeed;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EngineConfig, program, width, height, fullScreen, vsync, screenDepth, screenNear)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EngineConfig, program, width, height, fullScreen, vsync, fov, screenNear, screenFar, mouseSensitivity, camSpeed)

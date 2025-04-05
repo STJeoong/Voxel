@@ -7,12 +7,12 @@ int main(int argc, char** argv)
 	{
 		GameEngine::init();
 		GameEngine::run();
-		GameEngine::terminate();
 	}
 	catch (const std::exception& e)
 	{
 		std::cout << e.what();
 	}
+	GameEngine::terminate();
 
 	return 0;
 }
