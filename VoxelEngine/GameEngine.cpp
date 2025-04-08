@@ -35,6 +35,7 @@ void GameEngine::init()
 	if (s_window == nullptr)
 		throw std::runtime_error("Failed to create GLFW window");
 	glfwMakeContextCurrent(s_window);
+	
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		throw std::runtime_error("Failed to initialize GLAD");
@@ -45,19 +46,16 @@ void GameEngine::init()
 	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int width, int height)
 		{ glViewport(0, 0, width, height); s_config.width = width; s_config.height = height; });
 
-	Input::init();
-	Camera::init();
 	stbi_set_flip_vertically_on_load(true);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
 
+	Input::init();
+	Camera::init();
+
 	s_meshShader = new Shader("./Shader/Mesh.vs", "./Shader/Mesh.fs");
-	s_meshShader->setInt("texture0", 0);
-	s_meshShader->setInt("texture1", 1);
-	s_meshShader->setInt("texture2", 2);
-	s_meshShader->setInt("texture3", 3);
 	s_meshShader->setActive();
 	GameEngine::loadData();
 }
@@ -66,10 +64,6 @@ void GameEngine::run()
 	float last = 0.0;
 	float current = static_cast<float>(glfwGetTime());
 	int i = 0;
-	Chunk* chunks[51][51] = {};
-	for (int i = -25; i < 26; ++i)
-		for (int j = -25; j < 26; ++j)
-			chunks[i + 25][j + 25] = new Chunk({ (float)CHUNK_SIZE * i, 0,(float)CHUNK_SIZE * j });
 	while (!glfwWindowShouldClose(s_window))
 	{
 		++i;
@@ -88,9 +82,7 @@ void GameEngine::run()
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		Camera::update(current - last);
-		for (int i = 0; i < 51; ++i)
-			for (int j = 0; j < 51; ++j)
-				chunks[i][j]->draw();
+		Chunk::update();
 		glfwSwapBuffers(s_window);
 		glfwPollEvents();
 		last = current;

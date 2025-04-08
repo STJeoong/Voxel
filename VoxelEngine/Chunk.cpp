@@ -7,10 +7,55 @@
 #include "Shader.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <unordered_map>
+#include <iostream>
+#include <boost/asio.hpp>
+
+static std::unordered_map<Vec3, Chunk*> s_mp;
+static Chunk* s_chunks[101][101] = {};
+static boost::asio::thread_pool s_pool(4);
 
 #pragma region public static
 void Chunk::update()
 {
+	/*for (int i = -50; i <= 50; ++i)
+		for (int j = -50; j <= 50; ++j)
+		{
+			if (s_chunks[i + 50][j + 50] == nullptr)
+				s_chunks[i + 50][j + 50] = new Chunk({ (float)i * CHUNK_SIZE, 0, (float)j * CHUNK_SIZE });
+			s_chunks[i + 50][j + 50]->draw();
+		}*/
+
+	int load = GameEngine::config().chunkLoad;
+	int vs = GameEngine::config().voxelSize;
+	int gridX = static_cast<int>(Camera::transform.pos.x / (CHUNK_SIZE * vs));
+	int gridZ = static_cast<int>(Camera::transform.pos.z / (CHUNK_SIZE * vs));
+	for (int i = gridX - load / 2; i <= gridX + load / 2; ++i)
+		for (int j = gridZ - load / 2; j <= gridZ + load / 2; ++j)
+		{
+			Vec3 key = { static_cast<float>(i * CHUNK_SIZE * vs), 0, static_cast<float>(j * CHUNK_SIZE * vs) };
+			Chunk* chunk = nullptr;
+			if (s_mp.find(key) == s_mp.end())
+			{
+				chunk = new Chunk(key);
+				s_mp[key] = chunk;
+			}
+			else
+				chunk = s_mp[key];
+
+			if (!chunk->_isLoaded && !chunk->_isLoading)
+			{
+				chunk->_isLoading = true;
+				boost::asio::post(s_pool, [chunk]() { chunk->load(); chunk->generateMesh(); chunk->_isLoaded = true; });
+			}
+			else if (chunk->_isLoaded && !chunk->_drawable)
+			{
+				chunk->_va = new VertexArray(chunk->_vertices.data(), chunk->_vertices.size() / 6, chunk->_indices.data(), chunk->_indices.size());
+				chunk->_drawable = true;
+			}
+			else if (chunk->_drawable)
+				chunk->draw();
+		}
 }
 #pragma endregion
 
@@ -18,56 +63,40 @@ void Chunk::update()
 
 
 #pragma region public
-Chunk::Chunk(const Vec3& origin) : _origin(origin)
-{
-	static siv::PerlinNoise perlin(1234);
-	for (int x = 0; x < CHUNK_SIZE; ++x)
-		for (int z = 0; z < CHUNK_SIZE; ++z)
-		{
-			double noise = perlin.octave2D_01((origin.x + x) * 0.001, (origin.z + z) * 0.001, 4);
-			int height = static_cast<int>(noise * CHUNK_SIZE);
-			for (int y = 0; y < height; ++y)
-				_vx[y][z] |= (1ull << x);
-			_vy[x][z] = (1ull << height) - 1;
-		}
-
-	this->generateMesh();
-}
-void Chunk::remove(int x, int y, int z)
-{
-	if (x < 0 || x >= CHUNK_SIZE || y < 0 || y >= CHUNK_SIZE || z < 0 || z >= CHUNK_SIZE)
-		throw std::runtime_error("remove voxel error (out of range)");
-
-	if (!(_vx[y][z] & (1ull << x)))
-		return;
-
-	_vx[y][z] |= (1ull << x);
-	_vy[x][z] |= (1ull << y);
-	this->generateMesh();
-}
-void Chunk::insert(int x, int y, int z)
-{
-	if (x < 0 || x >= CHUNK_SIZE || y < 0 || y >= CHUNK_SIZE || z < 0 || z >= CHUNK_SIZE)
-		throw std::runtime_error("insert voxel error (out of range)");
-
-	if (_vx[y][z] & (1ull << x))
-		return;
-
-	_vx[y][z] &= ~(1ull << x);
-	_vy[x][z] &= ~(1ull << y);
-	this->generateMesh();
-}
+Chunk::Chunk(const Vec3& origin) : _origin(origin) { }
+Chunk::~Chunk() { delete _va; }
 #pragma endregion
 
 
 
 
 #pragma region private
+void Chunk::load()
+{
+	static siv::PerlinNoise perlin(1234);
+	int vs = GameEngine::config().voxelSize;
+	for (int x = 0; x < CHUNK_SIZE; ++x)
+		for (int z = 0; z < CHUNK_SIZE; ++z)
+		{
+			double noise = perlin.octave2D_01((_origin.x + x * vs) * 0.001, (_origin.z + z * vs) * 0.001, 4);
+			int height = static_cast<int>(noise * CHUNK_SIZE);
+			for (int y = 0; y < height; ++y)
+				_vx[y][z] |= (1ull << x);
+			_vy[x][z] = (1ull << height) - 1;
+		}
+}
+void Chunk::draw()
+{
+	_va->setActive();
+	Shader* shader = GameEngine::shader();
+	shader->setMat4f("transform", _origin.asTranslation().raw());
+	glDrawElements(GL_TRIANGLES, _va->iSize(), GL_UNSIGNED_INT, nullptr);
+}
 void Chunk::generateMesh()
 {
-	std::vector<float> vertices;
-	std::vector<unsigned int> indices;
-
+	int vs = GameEngine::config().voxelSize;
+	_vertices.clear();
+	_indices.clear();
 
 	// -x√‡
 	for (int x = 0; x < CHUNK_SIZE; ++x)
@@ -98,14 +127,14 @@ void Chunk::generateMesh()
 			float vx = static_cast<float>(x - CHUNK_SIZE / 2);
 			float vy = static_cast<float>(start - CHUNK_SIZE / 2);
 			float vz = static_cast<float>(z - CHUNK_SIZE / 2);
-			unsigned int idx = static_cast<unsigned int>(vertices.size()) / 6;
+			unsigned int idx = static_cast<unsigned int>(_vertices.size()) / 6;
 
-			vertices.insert(vertices.end(), {vx, vy, vz, -1, 0, 0});
-			vertices.insert(vertices.end(), {vx, vy, vz + width, -1, 0, 0});
-			vertices.insert(vertices.end(), {vx, vy + height, vz + width, -1, 0, 0});
-			vertices.insert(vertices.end(), {vx, vy + height, vz, -1, 0, 0});
-			indices.insert(indices.end(), {idx, idx + 1, idx + 2});
-			indices.insert(indices.end(), {idx, idx + 2, idx + 3});
+			_vertices.insert(_vertices.end(), {vx * vs, vy * vs, vz * vs, -1, 0, 0});
+			_vertices.insert(_vertices.end(), {vx * vs, vy * vs, (vz + width) * vs, -1, 0, 0});
+			_vertices.insert(_vertices.end(), {vx * vs, (vy + height) * vs, (vz + width) * vs, -1, 0, 0});
+			_vertices.insert(_vertices.end(), {vx * vs, (vy + height) * vs, vz * vs, -1, 0, 0});
+			_indices.insert(_indices.end(), {idx, idx + 1, idx + 2});
+			_indices.insert(_indices.end(), {idx, idx + 2, idx + 3});
 		}
 	}
 
@@ -138,14 +167,14 @@ void Chunk::generateMesh()
 			float vx = static_cast<float>(x + 1 - CHUNK_SIZE / 2);
 			float vy = static_cast<float>(start - CHUNK_SIZE / 2);
 			float vz = static_cast<float>((CHUNK_SIZE - z) - CHUNK_SIZE / 2);
-			unsigned int idx = static_cast<unsigned int>(vertices.size()) / 6;
+			unsigned int idx = static_cast<unsigned int>(_vertices.size()) / 6;
 
-			vertices.insert(vertices.end(), { vx, vy, vz, 1, 0, 0 });
-			vertices.insert(vertices.end(), { vx, vy, vz - width, 1, 0, 0 });
-			vertices.insert(vertices.end(), { vx, vy + height, vz - width, 1, 0, 0 });
-			vertices.insert(vertices.end(), { vx, vy + height, vz, 1, 0, 0 });
-			indices.insert(indices.end(), { idx, idx + 1, idx + 2 });
-			indices.insert(indices.end(), { idx, idx + 2, idx + 3 });
+			_vertices.insert(_vertices.end(), { vx * vs, vy * vs, vz * vs, 1, 0, 0 });
+			_vertices.insert(_vertices.end(), { vx * vs, vy * vs, (vz - width) * vs, 1, 0, 0 });
+			_vertices.insert(_vertices.end(), { vx * vs, (vy + height) * vs, (vz - width) * vs, 1, 0, 0 });
+			_vertices.insert(_vertices.end(), { vx * vs, (vy + height) * vs, vz * vs, 1, 0, 0 });
+			_indices.insert(_indices.end(), { idx, idx + 1, idx + 2 });
+			_indices.insert(_indices.end(), { idx, idx + 2, idx + 3 });
 		}
 	}
 
@@ -178,14 +207,14 @@ void Chunk::generateMesh()
 			float vx = static_cast<float>((CHUNK_SIZE - x) - CHUNK_SIZE / 2);
 			float vy = static_cast<float>(start - CHUNK_SIZE / 2);
 			float vz = static_cast<float>(z - CHUNK_SIZE / 2);
-			unsigned int idx = static_cast<unsigned int>(vertices.size()) / 6;
+			unsigned int idx = static_cast<unsigned int>(_vertices.size()) / 6;
 
-			vertices.insert(vertices.end(), { vx, vy, vz, 0, 0, -1 });
-			vertices.insert(vertices.end(), { vx - width, vy, vz, 0, 0, -1 });
-			vertices.insert(vertices.end(), { vx - width, vy + height, vz, 0, 0, -1 });
-			vertices.insert(vertices.end(), { vx, vy + height, vz, 0, 0, -1 });
-			indices.insert(indices.end(), { idx, idx + 1, idx + 2 });
-			indices.insert(indices.end(), { idx, idx + 2, idx + 3 });
+			_vertices.insert(_vertices.end(), { vx * vs, vy * vs, vz * vs, 0, 0, -1 });
+			_vertices.insert(_vertices.end(), { (vx - width) * vs, vy * vs, vz * vs, 0, 0, -1 });
+			_vertices.insert(_vertices.end(), { (vx - width) * vs, (vy + height) * vs, vz * vs, 0, 0, -1 });
+			_vertices.insert(_vertices.end(), { vx * vs, (vy + height) * vs, vz * vs, 0, 0, -1 });
+			_indices.insert(_indices.end(), { idx, idx + 1, idx + 2 });
+			_indices.insert(_indices.end(), { idx, idx + 2, idx + 3 });
 		}
 	}
 
@@ -218,14 +247,14 @@ void Chunk::generateMesh()
 			float vx = static_cast<float>(x - CHUNK_SIZE / 2);
 			float vy = static_cast<float>(start - CHUNK_SIZE / 2);
 			float vz = static_cast<float>(z + 1 - CHUNK_SIZE / 2);
-			unsigned int idx = static_cast<unsigned int>(vertices.size()) / 6;
+			unsigned int idx = static_cast<unsigned int>(_vertices.size()) / 6;
 
-			vertices.insert(vertices.end(), { vx, vy, vz, 0, 0, 1 });
-			vertices.insert(vertices.end(), { vx + width, vy, vz, 0, 0, 1 });
-			vertices.insert(vertices.end(), { vx + width, vy + height, vz, 0, 0, 1 });
-			vertices.insert(vertices.end(), { vx, vy + height, vz, 0, 0, 1 });
-			indices.insert(indices.end(), { idx, idx + 1, idx + 2 });
-			indices.insert(indices.end(), { idx, idx + 2, idx + 3 });
+			_vertices.insert(_vertices.end(), { vx * vs, vy * vs, vz * vs, 0, 0, 1 });
+			_vertices.insert(_vertices.end(), { (vx + width) * vs, vy * vs, vz * vs, 0, 0, 1 });
+			_vertices.insert(_vertices.end(), { (vx + width) * vs, (vy + height) * vs, vz * vs, 0, 0, 1 });
+			_vertices.insert(_vertices.end(), { vx * vs, (vy + height) * vs, vz * vs, 0, 0, 1 });
+			_indices.insert(_indices.end(), { idx, idx + 1, idx + 2 });
+			_indices.insert(_indices.end(), { idx, idx + 2, idx + 3 });
 		}
 	}
 
@@ -258,14 +287,14 @@ void Chunk::generateMesh()
 			float vx = static_cast<float>(start - CHUNK_SIZE / 2);
 			float vy = static_cast<float>(y - CHUNK_SIZE / 2);
 			float vz = static_cast<float>((CHUNK_SIZE - z) - CHUNK_SIZE / 2);
-			unsigned int idx = static_cast<unsigned int>(vertices.size()) / 6;
+			unsigned int idx = static_cast<unsigned int>(_vertices.size()) / 6;
 
-			vertices.insert(vertices.end(), { vx, vy, vz, 0, -1, 0 });
-			vertices.insert(vertices.end(), { vx, vy, vz - width, 0, -1, 0 });
-			vertices.insert(vertices.end(), { vx + height, vy, vz - width, 0, -1, 0 });
-			vertices.insert(vertices.end(), { vx + height, vy, vz, 0, -1, 0 });
-			indices.insert(indices.end(), { idx, idx + 1, idx + 2 });
-			indices.insert(indices.end(), { idx, idx + 2, idx + 3 });
+			_vertices.insert(_vertices.end(), { vx * vs, vy * vs, vz * vs, 0, -1, 0 });
+			_vertices.insert(_vertices.end(), { vx * vs, vy * vs, (vz - width) * vs, 0, -1, 0 });
+			_vertices.insert(_vertices.end(), { (vx + height) * vs, vy * vs, (vz - width) * vs, 0, -1, 0 });
+			_vertices.insert(_vertices.end(), { (vx + height) * vs, vy * vs, vz * vs, 0, -1, 0 });
+			_indices.insert(_indices.end(), { idx, idx + 1, idx + 2 });
+			_indices.insert(_indices.end(), { idx, idx + 2, idx + 3 });
 		}
 	}
 
@@ -298,26 +327,16 @@ void Chunk::generateMesh()
 			float vx = static_cast<float>(start - CHUNK_SIZE / 2);
 			float vy = static_cast<float>((CHUNK_SIZE - y) - CHUNK_SIZE / 2);
 			float vz = static_cast<float>(z - CHUNK_SIZE / 2);
-			unsigned int idx = static_cast<unsigned int>(vertices.size()) / 6;
+			unsigned int idx = static_cast<unsigned int>(_vertices.size()) / 6;
 
-			vertices.insert(vertices.end(), { vx, vy, vz, 0, 1, 0 });
-			vertices.insert(vertices.end(), { vx, vy, vz + width, 0, 1, 0 });
-			vertices.insert(vertices.end(), { vx + height, vy, vz + width, 0, 1, 0 });
-			vertices.insert(vertices.end(), { vx + height, vy, vz, 0, 1, 0 });
-			indices.insert(indices.end(), { idx, idx + 1, idx + 2 });
-			indices.insert(indices.end(), { idx, idx + 2, idx + 3 });
+			_vertices.insert(_vertices.end(), { vx * vs, vy * vs, vz * vs, 0, 1, 0 });
+			_vertices.insert(_vertices.end(), { vx * vs, vy * vs, (vz + width) * vs, 0, 1, 0 });
+			_vertices.insert(_vertices.end(), { (vx + height) * vs, vy * vs, (vz + width) * vs, 0, 1, 0 });
+			_vertices.insert(_vertices.end(), { (vx + height) * vs, vy * vs, vz * vs, 0, 1, 0 });
+			_indices.insert(_indices.end(), { idx, idx + 1, idx + 2 });
+			_indices.insert(_indices.end(), { idx, idx + 2, idx + 3 });
 		}
 	}
-
-	delete _va;
-	_va = new VertexArray(vertices.data(), vertices.size() / 6, indices.data(), indices.size());
-}
-void Chunk::draw()
-{
-	_va->setActive();
-	Shader* shader = GameEngine::shader();
-	shader->setMat4f("transform", _origin.asTranslation().raw());
-	glDrawElements(GL_TRIANGLES, _va->iSize(), GL_UNSIGNED_INT, nullptr);
 }
 void Chunk::calcHeight(uint64_t mask, int& start, int& height)
 {

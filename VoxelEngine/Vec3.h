@@ -1,4 +1,7 @@
 ﻿#pragma once
+#include <unordered_map>
+
+
 class Mat4;
 class Vec3
 {
@@ -31,7 +34,7 @@ public:
 	Vec3& operator+=(const Vec3& other);
 	Vec3& operator-=(const Vec3& other);
 	bool operator==(const Vec3& other) const;
-
+	size_t operator()() const;
 	
 
 	float& x;
@@ -40,5 +43,18 @@ public:
 private:
 	float _v[3] = {};
 };
+
+namespace std
+{
+	template <>
+	struct hash<Vec3>
+	{
+		size_t operator()(const Vec3& v) const
+		{
+			hash<float> func;
+			return func(v.x) ^ (func(v.y) << 1) ^ (func(v.z) << 2);
+		}
+	};
+}
 
 using Point3 = Vec3;

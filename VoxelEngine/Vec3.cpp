@@ -129,6 +129,10 @@ bool Vec3::operator==(const Vec3& other) const
 			return false;
 	return true;
 }
+size_t Vec3::operator()() const
+{
+	return std::hash<float>()(x) ^ (std::hash<float>()(y) << 1) ^ (std::hash<float>()(z) << 2);
+}
 #pragma endregion
 
 

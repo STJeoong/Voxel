@@ -7,7 +7,10 @@
 
   "fov": 1.0471975,
   "screenNear": 0.3,
-  "screenFar": 1000.0,
+  "screenFar": 10000.0,
   "mouseSensitivity": 0.001,
-  "camSpeed": 3
+  "camSpeed": 10,
+
+  "chunkLoad": 51,
+  "voxelSize": 1
 }

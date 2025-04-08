@@ -15,6 +15,9 @@ struct EngineConfig
 	float screenFar;
 	float mouseSensitivity;
 	float camSpeed;
+
+	int chunkLoad;
+	int voxelSize;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EngineConfig, program, width, height, fullScreen, vsync, fov, screenNear, screenFar, mouseSensitivity, camSpeed)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(EngineConfig, program, width, height, fullScreen, vsync, fov, screenNear, screenFar, mouseSensitivity, camSpeed, chunkLoad, voxelSize)
