@@ -18,15 +18,28 @@ static boost::asio::thread_pool s_pool(4);
 #pragma region public static
 void Chunk::update()
 {
-	/*for (int i = -50; i <= 50; ++i)
+	for (int i = -50; i <= 50; ++i)
 		for (int j = -50; j <= 50; ++j)
 		{
 			if (s_chunks[i + 50][j + 50] == nullptr)
 				s_chunks[i + 50][j + 50] = new Chunk({ (float)i * CHUNK_SIZE, 0, (float)j * CHUNK_SIZE });
-			s_chunks[i + 50][j + 50]->draw();
-		}*/
 
-	int load = GameEngine::config().chunkLoad;
+			Chunk* chunk = s_chunks[i + 50][j + 50];
+			if (!chunk->_isLoaded && !chunk->_isLoading)
+			{
+				chunk->_isLoading = true;
+				boost::asio::post(s_pool, [chunk]() { chunk->load(); chunk->generateMesh(); chunk->_isLoaded = true; });
+			}
+			else if (chunk->_isLoaded && !chunk->_drawable)
+			{
+				chunk->_va = new VertexArray(chunk->_vertices.data(), chunk->_vertices.size() / 6, chunk->_indices.data(), chunk->_indices.size());
+				chunk->_drawable = true;
+			}
+			else if (chunk->_drawable)
+				chunk->draw();
+		}
+
+	/*int load = GameEngine::config().chunkLoad;
 	int vs = GameEngine::config().voxelSize;
 	int gridX = static_cast<int>(Camera::transform.pos.x / (CHUNK_SIZE * vs));
 	int gridZ = static_cast<int>(Camera::transform.pos.z / (CHUNK_SIZE * vs));
@@ -36,10 +49,7 @@ void Chunk::update()
 			Vec3 key = { static_cast<float>(i * CHUNK_SIZE * vs), 0, static_cast<float>(j * CHUNK_SIZE * vs) };
 			Chunk* chunk = nullptr;
 			if (s_mp.find(key) == s_mp.end())
-			{
-				chunk = new Chunk(key);
-				s_mp[key] = chunk;
-			}
+				s_mp[key] = chunk = new Chunk(key);
 			else
 				chunk = s_mp[key];
 
@@ -55,7 +65,7 @@ void Chunk::update()
 			}
 			else if (chunk->_drawable)
 				chunk->draw();
-		}
+		}*/
 }
 #pragma endregion
 

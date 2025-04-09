@@ -8,6 +8,7 @@ uniform mat4 viewProj;
 
 out vec3 color;
 out vec3 normal;
+out vec3 fragPos;
 void main()
 {
 	gl_Position = viewProj * transform * vec4(aPos, 1.0);
@@ -16,4 +17,5 @@ void main()
 	else
 		color = vec3(0.2, 0.5, 0.7);
 	normal = aNormal;
+	fragPos = vec3(transform * vec4(aPos, 1.0));
 }

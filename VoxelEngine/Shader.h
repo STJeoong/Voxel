@@ -11,6 +11,7 @@ public:
 	void setBool(const std::string& name, bool value);
 	void setInt(const std::string& name, int value);
 	void setMat4f(const std::string& name, const float* value);
+	void setVec3f(const std::string& name, float x, float y, float z);
 private:
 	void compile(const std::string& fileName, unsigned int shader);
 

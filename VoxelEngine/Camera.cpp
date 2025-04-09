@@ -94,6 +94,7 @@ void Camera::update(float dt)
 	}
 	s_viewProj = proj * view;
 	GameEngine::shader()->setMat4f("viewProj", s_viewProj.raw());
+	GameEngine::shader()->setVec3f("camPos", transform.pos.x, transform.pos.y, transform.pos.z);
 }
 void Camera::move()
 {

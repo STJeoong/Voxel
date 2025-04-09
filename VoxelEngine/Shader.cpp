@@ -62,6 +62,12 @@ void Shader::setMat4f(const std::string& name, const float* value)
 	int location = glGetUniformLocation(_id, name.c_str());
 	glUniformMatrix4fv(location, 1, GL_TRUE, value);
 }
+void Shader::setVec3f(const std::string& name, float x, float y, float z)
+{
+	this->setActive();
+	int location = glGetUniformLocation(_id, name.c_str());
+	glUniform3f(location, x, y, z);
+}
 #pragma endregion
 
 

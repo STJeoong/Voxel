@@ -9,8 +9,8 @@
   "screenNear": 0.3,
   "screenFar": 10000.0,
   "mouseSensitivity": 0.001,
-  "camSpeed": 10,
+  "camSpeed": 5,
 
   "chunkLoad": 51,
-  "voxelSize": 1
+  "voxelSize": 8
 }
