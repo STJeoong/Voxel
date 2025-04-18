@@ -1,5 +1,5 @@
 {
-  "program": "GameEngine",
+  "program": "VoxelEngine",
   "width": 1024,
   "height": 768,
   "fullScreen": false,
@@ -7,7 +7,7 @@
 
   "fov": 1.0471975,
   "screenNear": 0.3,
-  "screenFar": 10000.0,
+  "screenFar": 10000000.0,
   "mouseSensitivity": 0.001,
   "camSpeed": 5,
 

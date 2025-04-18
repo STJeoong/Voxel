@@ -18,13 +18,14 @@ static boost::asio::thread_pool s_pool(4);
 #pragma region public static
 void Chunk::update()
 {
-	for (int i = -50; i <= 50; ++i)
-		for (int j = -50; j <= 50; ++j)
+	int vs = GameEngine::config().voxelSize;
+	for (int i = -25; i <= 25; ++i)
+		for (int j = -25; j <= 25; ++j)
 		{
-			if (s_chunks[i + 50][j + 50] == nullptr)
-				s_chunks[i + 50][j + 50] = new Chunk({ (float)i * CHUNK_SIZE, 0, (float)j * CHUNK_SIZE });
+			if (s_chunks[i + 25][j + 25] == nullptr)
+				s_chunks[i + 25][j + 25] = new Chunk({ (float)(i * CHUNK_SIZE * vs), 0, (float)(j * CHUNK_SIZE * vs) });
 
-			Chunk* chunk = s_chunks[i + 50][j + 50];
+			Chunk* chunk = s_chunks[i + 25][j + 25];
 			if (!chunk->_isLoaded && !chunk->_isLoading)
 			{
 				chunk->_isLoading = true;

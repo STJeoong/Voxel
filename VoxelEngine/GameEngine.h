@@ -14,9 +14,6 @@ public:
 	static const EngineConfig& config();
 	static GLFWwindow* window();
 	static Shader* shader();
-private:
-	static void loadData();
-	static void unloadData();
 
 
 public:

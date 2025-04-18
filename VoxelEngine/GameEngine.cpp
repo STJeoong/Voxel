@@ -6,7 +6,6 @@
 #include "Input.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <stb_image.h>
 #include "Shader.h"
 #include <iostream>
 #include "Camera.h"
@@ -46,18 +45,16 @@ void GameEngine::init()
 	glfwSetFramebufferSizeCallback(s_window, [](GLFWwindow* window, int width, int height)
 		{ glViewport(0, 0, width, height); s_config.width = width; s_config.height = height; });
 
-	stbi_set_flip_vertically_on_load(true);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	Input::init();
 	Camera::init();
 
 	s_meshShader = new Shader("./Shader/Mesh.vs", "./Shader/Mesh.fs");
 	s_meshShader->setActive();
-	GameEngine::loadData();
 }
 void GameEngine::run()
 {
@@ -91,22 +88,10 @@ void GameEngine::run()
 }
 void GameEngine::terminate()
 {
-	GameEngine::unloadData();
 	delete s_meshShader;
 	glfwTerminate();
 }
 const EngineConfig& GameEngine::config() { return s_config; }
 GLFWwindow* GameEngine::window() { return s_window; }
 Shader* GameEngine::shader() { return s_meshShader; }
-#pragma endregion
-
-
-
-#pragma region private static
-void GameEngine::loadData()
-{
-}
-void GameEngine::unloadData()
-{
-}
 #pragma endregion
